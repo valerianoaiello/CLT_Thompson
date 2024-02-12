@@ -9,9 +9,9 @@ import numpy as np
 
 
 import sys
-sys.path.append('/Users/valerianoaiello/Documents/GitHub/CLT_Thompson/src/')
+#sys.path.append('/Users/valerianoaiello/Documents/GitHub/CLT_Thompson/src/')
 #sys.path.append('/Users/valerianoaiello/Documents/GitHub/Thompson-knot-theory/src/')
-from generators_F import *
+#from generators_F import *
 
 
 """
@@ -40,6 +40,10 @@ class Tree_diagram:
   def print_tree_diagram(self):
     print("top tree", self.top)
     print("bottom tree", self.bottom)
+  @classmethod
+  def create_x_0(cls):
+      # Create and return an instance with standard attributes
+      return cls(['00', '01', '1'], ['0', '10', '11'])
 
 
 
@@ -354,13 +358,15 @@ def power_tree_diagram(tree_diagram: Tree_diagram, exponent: int) -> Tree_diagra
 """
 if __name__ == '__main__':
 
-
+  x_0 = Tree_diagram.create_x_0()
+  x_1 = right_shift_homomorphism(x_0)
+#  x_1 = right_shift_homomorphism(Tree_diagram.create_x_0)
   identity = Tree_diagram(generate_complete_binary_tree(3), generate_complete_binary_tree(3))
   identity.print_tree_diagram()
   reduce_tree_diagram(identity).print_tree_diagram()
   reduce_tree_diagram(reduce_tree_diagram(reduce_tree_diagram(identity))).print_tree_diagram()
   find_common_tree(x_0,x_1)[0].print_tree_diagram()
-  find_common_tree(x_0,x_1)[1].print_tree_diagram()
+#  find_common_tree(x_0,x_1)[1].print_tree_diagram()
   product = power_tree_diagram(x_0, 2)
   print("product new")
   product.print_tree_diagram()
