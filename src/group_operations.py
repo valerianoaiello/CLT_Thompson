@@ -333,11 +333,12 @@ def multiply_many_tree_diagrams(collection_of_tree_diagram: list) -> Tree_diagra
   return product  
 
 
-"""
-This function calculates the power of an element in F. 
-The element is stored in the variable tree_diagram, while exponent is an integer.
-"""
+
 def power_tree_diagram(tree_diagram: Tree_diagram, exponent: int) -> Tree_diagram:
+  """
+  This function calculates the power of an element in F. 
+  The element is stored in the variable tree_diagram, while exponent is an integer.
+  """
   result = Tree_diagram()
   if exponent == 0:
     return result
@@ -350,12 +351,32 @@ def power_tree_diagram(tree_diagram: Tree_diagram, exponent: int) -> Tree_diagra
   return result
 
 """
-  x_0 = Tree_diagram(['00', '01', '1'], ['0', '10', '11'])
-  x_1 = right_shift_homomorphism(x_0)
-
-  x_0inv = x_0.inverse_tree_diagram()
-  x_1inv = x_1.inverse_tree_diagram()
+This function takes a binary word a_0a_1...a_n, that is a string in '0' and '1', and computes the alternating sum 
+-a_0+a_1-a_2+a_3...
 """
+def alternating_sum(word: str) -> int:
+  sum = 0
+  for i in range(len(word)):
+    if i%2 == 0:
+      sum += int(word[i])
+    else:
+      sum -= int(word[i])
+  return sum
+
+"""
+This function checks if the element of F, a Tree_diagram, is in the oriented subgroup. 
+If it is, it returns True, otherwise it returns False.
+"""
+def is_in_oriented_subgroup(tree_diagram: Tree_diagram) -> bool:
+  
+  for i in range(len(tree_diagram.top)):
+    word_plus = tree_diagram.top[i]
+    word_minus = tree_diagram.bottom[i]
+    if alternating_sum(word_plus) % 2 != alternating_sum(word_minus) % 2:
+      print(alternating_sum(word_plus), alternating_sum(word_minus))
+      return False
+  return True
+
 if __name__ == '__main__':
 
   x_0 = Tree_diagram.create_x_0()
@@ -371,7 +392,8 @@ if __name__ == '__main__':
   print("product new")
   product.print_tree_diagram()
   print(type(flatten_list(generate_complete_binary_tree(2))))
-
+  print(is_in_oriented_subgroup(multiplication_tree_diagrams(x_0,x_1)))
+  print(is_in_oriented_subgroup(multiplication_tree_diagrams(x_1,x_1)))
 """
 if __name__ == '__main__':
   x_0
