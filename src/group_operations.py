@@ -1,5 +1,5 @@
 """
-GROUP AND SUBGROUP OPERATIONS IN THE BROWN-THOMPSON GROUP F
+GROUP OPERATIONS IN THE BROWN-THOMPSON GROUP F
 """
 
 import copy
@@ -433,7 +433,7 @@ def moment(sequence_index: int, exponent_power: int):
         # Record end time
         elapsed_time += end_time - start_time
         sum += 1 
-    print("{:.2f}".format(sum/np.sqrt(2*sequence_index)**exponent_power))
+#    print("{:.2f}".format(sum/np.sqrt(2*sequence_index)**exponent_power))
     print(elapsed_time)
     return sum
   
@@ -442,8 +442,17 @@ if __name__ == '__main__':
 #  x_0 = Tree_diagram.create_x_0(3)
 #  x_0.print_tree_diagram()
   d= 4
-  for n in range(1, 7):
-    print(moment(n, d))
+
+  
+# Aprire un file in modalità scrittura
+with open('output.txt', 'w') as file:
+    # Scrivere i risultati nel file
+  file.write("un-normalized moments" + " | " + "moments" + " | " + "sequence_index" + " | " + "exponent_power" + '\n')
+  for n in range(1, 4):
+#    print(moment(n, d))
+    value_moment = moment(n, d)
+    file.write(str(value_moment) + " | " + "{:.2f}".format(value_moment/np.sqrt(2*n)**d) + " | " +  str(n) + " | " + str(d) + '\n')
+
 #  print('i = ', i, 'moment = ', moment(1, i))
 
 #  for i in range(4, 5):
