@@ -1,9 +1,8 @@
 """
 GROUP OPERATIONS IN THE BROWN-THOMPSON GROUP F
 """
-#from ctypes import cdll
+from ctypes import cdll
 
-import ctypes as ct
 
 import copy
 import numpy as np
@@ -11,12 +10,8 @@ from itertools import product
 import time
 
 # import libraries in order to use fortran code
-#import myflib
-import fmodpy
-
-
+import myflib
 import numpy as np
-from ctypes import cdll
 
 #import sys
 #sys.path.append('/Users/valerianoaiello/Documents/GitHub/CLT_Thompson/src/')
@@ -451,23 +446,14 @@ def moment(sequence_index: int, exponent_power: int):
 if __name__ == '__main__':
   # Carica la libreria Rust compilata
 #  lib = cdll.LoadLibrary('./rust_lib/src/lib.rs')
-#  myflib = fmodpy.fimport("boring_library.f90")
 
 #  x_0 = Tree_diagram.create_x_0(3)
 #  x_0.print_tree_diagram()
   d= 4
-  myflib = fmodpy.fimport("boring_library.f90")
 
-  myflib.foo()
 
-#  print(myflib.foo(a))
- # myflib.GenerateCompleteBinaryTreeNew(1)
- # This will compile and import the Fortran code.
-# (will also recompile if Fortran source changed since last access!)
-#  myflib = fmodpy.fimport("boring_library.f90")
-
-#  a = np.array([[1,2,3,4], [5,6,7,8]], order='F')
-#  myflib.foo(a)
+  a = np.array([[1,2,3,4], [5,6,7,8]], order='F')
+  print(myflib.foo(a))
   # Chiamata alla funzione Rust da Python
  # risultato = lib.somma(10, 5)
 
