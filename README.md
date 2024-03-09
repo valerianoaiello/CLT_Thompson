@@ -17,6 +17,18 @@ and its elements are called positive.
 The oriented subgroup $\vec{F}$ was introduced by V. Jones in [Jo14] to produce oriented knots/links and later studied by Golan and Sapir. 
 After that, in [A1] (see also [A2]) it was proved an Alexander type theorem for $\vec{F}$, that is every oriented knot/link can be produced by a suitable element of $\vec{F}$.
 
+## A 'chromatic' state and its moments
+Consider the linear functional $\varphi: \mathbb{C}[F] \to \mathbb{C}$ defined as
+ $$
+ \varphi(g):=\frac{{\rm Chr}_{\Gamma(g)}(2)}{2} \quad \text{ for any $g\in F$.}
+ $$
+ When evaluated at an element of $F$, this functional returns $1$ if the element belongs to $\OF$, and $0$ otherwise.
+
+In this project, we examine the elements
+$$
+a_n:=\frac{(x_n+x_n^{-1})}{\sqrt{2}} \qquad s_n:=\frac{\left(\sum_{i=0}^{n-1} a_i\right)}{\sqrt{n}}
+$$
+and we aim to compute $(x_n+x_n^{-1})}{\sqrt{2}} \varphi(s_n^k)$ for all $n$, $k$ in $\mathbb{N}_0$.
 
 ## Bibliography
 [A1] V. Aiello, On the Alexander Theorem for the oriented Thompson group F. Algebraic & Geometric Topology 20.1 (2020): 429-438.
