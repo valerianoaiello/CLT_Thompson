@@ -1,9 +1,9 @@
 /*
-In this code we create a class TreeDiagram to make computations in the Thompson group F.
+In this code we create a class 'TreeDiagram' to make computations in the Thompson group F.
 
-The function multiplicationTreeDiagrams implements the multiplication in the group.
+The function 'multiplicationTreeDiagrams' implements the multiplication in the group.
 
-The function unnormalized_moment computes the unnormalized moments of the chromatic polynomial evaluated at 2.
+The function 'unnormalized_moment' computes the unnormalized moments of the chromatic polynomial evaluated at 2.
 */
 
 #include <iostream>
@@ -283,7 +283,7 @@ std::pair<TreeDiagram, TreeDiagram> findCommonTree(const TreeDiagram& treeDiagra
 }
 
 /*
-The function multiplicationTreeDiagrams implements the multiplication of two elements of F.
+The function 'multiplicationTreeDiagrams' implements the multiplication of two elements of F.
 The inputs are two TreeDiagrams: treeDiagramOne, treeDiagramTwo.
 The output is their product: treeDiagramProd.
 */
@@ -330,7 +330,7 @@ TreeDiagram multiplicationTreeDiagrams(const TreeDiagram& treeDiagramOne, const 
 
 
 /*
-The function multiplyManyTreeDiagrams has as input a collection of TreeDiagrams, collectionOfTreeDiagram.
+The function 'multiplyManyTreeDiagrams' has as input a collection of TreeDiagrams, collectionOfTreeDiagram.
 The output is their product.
 */
 TreeDiagram multiplyManyTreeDiagrams(const vector<TreeDiagram>& collectionOfTreeDiagram) {
@@ -350,8 +350,8 @@ TreeDiagram multiplyManyTreeDiagrams(const vector<TreeDiagram>& collectionOfTree
 }
 
 /* 
-Function to generate all sequences with repetitions of length d
- from the vector {0, ..., n-1}
+The function 'generateSequences' generates all sequences (with repetitions) of length d
+from the vector {0, ..., n-1}
 */ 
 vector<vector<int>> generateSequences(int n, int d) {
     // Create a vector containing elements from 0 to n-1
@@ -396,9 +396,8 @@ vector<vector<int>> generateSequences(int n, int d) {
 }
 
 
-
-
-/* This function calculates the unnormalized mmoments, that is
+/* 
+The function 'unnormalized_moment' calculates the unnormalized mmoments, that is
 (s_{sequence_index})^(exponent_power) * (sqrt{exponent_power*sequence_index})^exponent_power
 */
 int unnormalized_moment(int sequence_index, int exponent_power) {
@@ -452,7 +451,9 @@ int unnormalized_moment(int sequence_index, int exponent_power) {
 }
 
 
-// Function to find nonzero indices in a vector
+/* 
+The function 'find_nonzero_indices' finds the nonzero indices in a vector.
+*/
 std::vector<int> find_nonzero_indices(const std::vector<int>& array) {
     std::vector<int> nonzero_indices;
     for (int i = 0; i < array.size(); ++i) {
@@ -464,7 +465,7 @@ std::vector<int> find_nonzero_indices(const std::vector<int>& array) {
 }
 
 /*
-Function to find the normal form of a binary tree diagram.
+The function 'find_normal_form' finds the normal form of a binary tree diagram.
 The input is a TreeDiagram. The output are two arrays of integers.
 The first contains exponents of the positive part of the normal form,
 the second that of the negative part, for example {{0, 1, 0}, {1, 0, 0}}
