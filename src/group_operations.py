@@ -250,7 +250,7 @@ def reduce_tree_diagram(tree_diagram: Tree_diagram) -> Tree_diagram:
   tree_minus = copy.deepcopy(tree_diagram.bottom)
 
   for i in range(len(tree_plus)-2,-1,-1):
-    if i+1<len(tree_plus) and tree_plus[i][:-1] == tree_plus[i+1][:-1] and tree_minus[i][:-1] == tree_minus[i+1][:-1]:
+    if i+1<len(tree_plus) and tree_plus[i][:-1] == tree_plus[i+1][:-1] and (tree_plus[i][-1] == tree_plus[i][-1] == "0") and (tree_plus[i+1][-1] == tree_plus[i+1][-1] == "1") and tree_minus[i][:-1] == tree_minus[i+1][:-1] and (tree_minus[i][-1] == tree_minus[i][-1] == "0") and (tree_minus[i+1][-1] == tree_minus[i+1][-1] == "1"):
         tree_plus[i] = tree_plus[i][:-1]
         tree_minus[i] = tree_minus[i][:-1]
         del tree_plus[i+1]
@@ -414,7 +414,7 @@ def moment(sequence_index: int, exponent_power: int):
   """
   This function returns the 'exponent_power' moment of 'index_element'.
   """
-  if exponent_power == 0 or exponent_power == 2:
+  if exponent_power == 0: # or exponent_power == 2:
     return 1
   elif exponent_power%2 == 1:
     return 0 
@@ -445,20 +445,33 @@ def moment(sequence_index: int, exponent_power: int):
         elapsed_time += end_time - start_time
         sum += 1 
 #    print("{:.2f}".format(sum/np.sqrt(2*sequence_index)**exponent_power))
-    print(elapsed_time)
+    print("elapsed time: ", elapsed_time)
     return sum
   
+
+
 if __name__ == '__main__':
+
+    # Aprire un file in modalità scrittura
+  d = 4
+  with open('output.txt', 'w') as file:
+      # Scrivere i risultati nel file
+    file.write("un-normalized moments" + " | " + "moments" + " | " + "sequence_index" + " | " + "exponent_power" + '\n')
+    for n in range(1, 5):
+  #    print(moment(n, d))
+      value_moment = moment(n, d)
+      file.write(str(value_moment) + " | " + "{:.2f}".format(value_moment/np.sqrt(2*n)**d) + " | " +  str(n) + " | " + str(d) + '\n')
+
   # Carica la libreria Rust compilata
 #  lib = cdll.LoadLibrary('./rust_lib/src/lib.rs')
 #  myflib = fmodpy.fimport("boring_library.f90")
 
 #  x_0 = Tree_diagram.create_x_0(3)
 #  x_0.print_tree_diagram()
-  d= 4
-  myflib = fmodpy.fimport("boring_library.f90")
+#  d= 4
+#  myflib = fmodpy.fimport("boring_library.f90")
 
-  myflib.foo()
+#  myflib.foo()
 
 #  print(myflib.foo(a))
  # myflib.GenerateCompleteBinaryTreeNew(1)
@@ -474,14 +487,6 @@ if __name__ == '__main__':
   # Stampa il risultato
  # print(f"Il risultato della somma è: {risultato}")
   
-# Aprire un file in modalità scrittura
-with open('output.txt', 'w') as file:
-    # Scrivere i risultati nel file
-  file.write("un-normalized moments" + " | " + "moments" + " | " + "sequence_index" + " | " + "exponent_power" + '\n')
-  for n in range(1, 4):
-#    print(moment(n, d))
-    value_moment = moment(n, d)
-    file.write(str(value_moment) + " | " + "{:.2f}".format(value_moment/np.sqrt(2*n)**d) + " | " +  str(n) + " | " + str(d) + '\n')
 
 #  print('i = ', i, 'moment = ', moment(1, i))
 

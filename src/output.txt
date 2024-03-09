@@ -1,4 +1,0 @@
-un-normalized moments | moments | sequence_index | exponent_power
-6 | 1.50 | 1 | 4
-52 | 3.25 | 2 | 4
-176 | 4.89 | 3 | 4
