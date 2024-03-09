@@ -3,7 +3,7 @@ In this code we create a class TreeDiagram to make computations in the Thompson 
 
 The function multiplicationTreeDiagrams implements the multiplication in the group.
 
-The function unnormalized_moment computer the unnormalized moments of the chromatic polynomial evaluated at 2.
+The function unnormalized_moment computes the unnormalized moments of the chromatic polynomial evaluated at 2.
 */
 
 #include <iostream>
@@ -483,7 +483,6 @@ std::pair<std::vector<int>, std::vector<int>> find_normal_form(TreeDiagram tree_
 
     size_t last_digit_1_position;
     size_t the_last_digit_0_before_last_digit_1;
-//    size_t find_last_not_of;
     // Iterate over each level of the tree
     positive_part[0] = top_tree[0].length()-1;
     for (int i = 1; i < length; ++i) {
@@ -543,10 +542,7 @@ int main() {
 
     TreeDiagram x_1 = TreeDiagram::rightShiftHomomorphism(x_0);
 
-    int d = 4;
-    for (int n = 1; n<4; ++n){
-        cout << "\nmoment d= " << d << ", n=" << n << ", unnormalized_moment= "<< unnormalized_moment(n, d) << endl;
-    }
+    
 
     TreeDiagram prodotto;
     vector<int> formanormale;
@@ -581,8 +577,12 @@ int main() {
         cout<< " " << formanormale[i];
     }
     cout << endl;
-   
+    int d = 10;
+    cout << "CIAO \n";
+    for (int n=2; n<3; ++n){
+        cout << unnormalized_moment(n,d) << ", ";
+    }
 
-
+    cout << endl;
     return 0;
 } 
