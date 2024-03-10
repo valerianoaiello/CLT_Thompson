@@ -1,22 +1,21 @@
 """
 GROUP OPERATIONS IN THE BROWN-THOMPSON GROUP F
+
+In this file we implement the structure of the Thompson group F.
+The class Tree_diagram allows the user to define elements of F, take their inverses, get the number of leaves, 
+print the elements. 
+Each element of F is described by a pair of vectors, the first for the top tree, 
+the second for the bottom tree, whose components are string (each string is a word in '0' and '1' 
+representing a leaf, the word describes the shortest path from the root of tree to the leaf, 
+'0'= left edge, '1'= right edge).
+The function 'multiplicationTreeDiagrams' implements the multiplication in the group.
+The function 'unnormalized_moment' computes the unnormalized moments of the chromatic polynomial evaluated at 2.
 """
-#from ctypes import cdll
-
-import ctypes as ct
-
 import copy
 import numpy as np
 from itertools import product
 import time
-
-# import libraries in order to use fortran code
-#import myflib
-import fmodpy
-
-
 import numpy as np
-from ctypes import cdll
 
 #import sys
 #sys.path.append('/Users/valerianoaiello/Documents/GitHub/CLT_Thompson/src/')
@@ -26,7 +25,7 @@ from ctypes import cdll
 
 class Tree_diagram:
   """
-  Description of Binary Tree Diagrams
+  Description of Tree Diagrams
   Binary tree diagrams are represented using pairs of binary words.
 
   We describe ternary tree diagrams with pairs of ternary words. 
@@ -51,12 +50,9 @@ class Tree_diagram:
     print("top tree", self.top)
     print("bottom tree", self.bottom)
   @classmethod
-  def create_x_0(cls, version=2):
-      # Create and return an instance representing the generator x_0. The parameter 'version' tells if we are in F=F_2 or F_3 
-      if version ==2:
-        return cls(['00', '01', '1'], ['0', '10', '11'])
-      elif version ==3:
-        return cls(['00', '01', '02', '1', '2'], ['0', '1', '20', '21', '22'])
+  def create_x_0(self):
+    # Create and return an instance representing the generator x_0. 
+    return Tree_diagram(['00', '01', '1'], ['0', '10', '11'])
 
 
 
@@ -81,7 +77,7 @@ def right_shift_homomorphism(tree_diagram: Tree_diagram) -> Tree_diagram:
 
 def flip_automorphism(tree_diagram: Tree_diagram) -> Tree_diagram:
   """
-  This represents the flip automorphism on F. It possesses an order of 2, 
+  This represents the flip automorphism on F. This is an automorphism of order 2, 
   and at the level of tree diagrams, it is achieved by reflecting the trees about a vertical line.
   """  
   tree_plus_deep_cp = copy.deepcopy(tree_diagram.top)
@@ -90,13 +86,13 @@ def flip_automorphism(tree_diagram: Tree_diagram) -> Tree_diagram:
   for i in range(len(tree_plus_deep_cp)):
       for j in range(len(tree_plus_deep_cp[i])):
         if tree_plus_deep_cp[i][j] == '0':
-          tree_plus_deep_cp[i] = tree_plus_deep_cp[i][:j] + '2' + tree_plus_deep_cp[i][j+1:]
-        elif tree_plus_deep_cp[i][j] == '2':
+          tree_plus_deep_cp[i] = tree_plus_deep_cp[i][:j] + '1' + tree_plus_deep_cp[i][j+1:]
+        elif tree_plus_deep_cp[i][j] == '1':
           tree_plus_deep_cp[i] = tree_plus_deep_cp[i][:j] + '0' + tree_plus_deep_cp[i][j+1:]
       for j in range(len(tree_minus_deep_cp[i])):
         if tree_minus_deep_cp[i][j] == '0':
-          tree_minus_deep_cp[i] = tree_minus_deep_cp[i][:j] + '2' + tree_minus_deep_cp[i][j+1:]
-        elif tree_minus_deep_cp[i][j] == '2':
+          tree_minus_deep_cp[i] = tree_minus_deep_cp[i][:j] + '1' + tree_minus_deep_cp[i][j+1:]
+        elif tree_minus_deep_cp[i][j] == '1':
           tree_minus_deep_cp[i] = tree_minus_deep_cp[i][:j] + '0' + tree_minus_deep_cp[i][j+1:]
   tree_plus_deep_cp.sort()
   tree_minus_deep_cp.sort()
@@ -110,12 +106,9 @@ def generate_complete_binary_tree(height: int) -> list:
   if height == 0:
     return [""]
   elif height == 1:
-    return ["0", "1", "2"]
+    return ["0", "1"]
   else:
-    return ["0" + i for i in generate_complete_binary_tree(height-1)]+ ["1" + i for i in generate_complete_binary_tree(height-1)]+ ["2" + i for i in generate_complete_binary_tree(height-1)] 
-
-
-
+    return ["0" + i for i in generate_complete_binary_tree(height-1)]+ ["1" + i for i in generate_complete_binary_tree(height-1)]
 
 def flatten_list(outer_list: list) -> list:
   """
@@ -129,9 +122,6 @@ def flatten_list(outer_list: list) -> list:
     else:
         flat_list.append(element)
   return flat_list
-
-
-
  
 def find_common_tree(tree_diagram_one: Tree_diagram, tree_diagram_two: Tree_diagram):
   """
@@ -180,7 +170,6 @@ def find_normal_form(tree_diagram: Tree_diagram) -> list:
   The positive part is described by a vector of the form [a_0, ..., a_n], 
   and the negative part is described by a vector of the form [b_0, ..., b_n]. 
   Here, a_0, ..., a_n, b_0, ..., b_n are all non-negative integers. 
-  This function identifies the vectors with the smallest n such that at least one between a_n and b_n is non-zero.
   """
   length = tree_diagram.get_number_leaves()
   positive_part = np.zeros(length)
@@ -240,7 +229,6 @@ def generate_complete_binary_tree(height: int) -> list:
 
 
 def reduce_tree_diagram(tree_diagram: Tree_diagram) -> Tree_diagram:
-
   """
   tree_plus and tree_minus are lists containing binary words, with digits in {0, 1}, each representing a ternary tree. 
   Both trees have the same number of leaves. The function reduce_tree_diagram takes two binary trees and applies 
@@ -257,9 +245,6 @@ def reduce_tree_diagram(tree_diagram: Tree_diagram) -> Tree_diagram:
         del tree_minus[i+1]
   tree_diagram_reduced =  Tree_diagram(tree_plus, tree_minus)
   return tree_diagram_reduced
-
-
-
 
 def find_common_tree(tree_diagram_one: Tree_diagram, tree_diagram_two: Tree_diagram) -> list:
   """
@@ -295,8 +280,6 @@ def find_common_tree(tree_diagram_one: Tree_diagram, tree_diagram_two: Tree_diag
   tree_diagram_two_mod = Tree_diagram(tree_plus_prime, tree_minus_prime)
   return tree_diagram_one_mod, tree_diagram_two_mod
 
-
-
 def multiplication_tree_diagrams(tree_diagram_one: Tree_diagram, tree_diagram_two: Tree_diagram) -> Tree_diagram:
   """
   The function takes two tree diagrams, described by two pairs of ternary words, 
@@ -329,8 +312,6 @@ def multiplication_tree_diagrams(tree_diagram_one: Tree_diagram, tree_diagram_tw
             break
   return tree_diagram_prod
 
-
-
 def multiply_many_tree_diagrams(collection_of_tree_diagram: list) -> Tree_diagram:
   """
   This function multiplies several elements of F. The input is a list whose elements are binary tree diagrams.
@@ -346,8 +327,6 @@ def multiply_many_tree_diagrams(collection_of_tree_diagram: list) -> Tree_diagra
       product = multiplication_tree_diagrams(product, collection_of_tree_diagram[i])
     return product
   return product  
-
-
 
 def power_tree_diagram(tree_diagram: Tree_diagram, exponent: int) -> Tree_diagram:
   """
@@ -365,7 +344,6 @@ def power_tree_diagram(tree_diagram: Tree_diagram, exponent: int) -> Tree_diagra
     return result
   return result
 
-
 def alternating_sum(word: str) -> int:
   """
   This function takes a binary word a_0a_1...a_n, that is a string in '0' and '1', and computes the alternating sum 
@@ -379,7 +357,6 @@ def alternating_sum(word: str) -> int:
       sum -= int(word[i])
   return sum
 
-
 def is_in_oriented_subgroup(tree_diagram: Tree_diagram) -> bool:
   """
   This function checks if the element of F, a Tree_diagram, is in the oriented subgroup. 
@@ -389,14 +366,8 @@ def is_in_oriented_subgroup(tree_diagram: Tree_diagram) -> bool:
     word_plus = tree_diagram.top[i]
     word_minus = tree_diagram.bottom[i]
     if alternating_sum(word_plus) % 2 != alternating_sum(word_minus) % 2:
-#      print(alternating_sum(word_plus), alternating_sum(word_minus))
       return False
   return True
-
-
-
-
-
 
 def generate_sequences(list1, d):
     """
@@ -409,12 +380,12 @@ def generate_sequences(list1, d):
 
     return result 
 
-
 def moment(sequence_index: int, exponent_power: int):
   """
-  This function returns the 'exponent_power' moment of 'index_element'.
+  The function 'unnormalized_moment' calculates the unnormalized mmoments, that is
+  (s_{sequence_index})^(exponent_power) * (sqrt{exponent_power*sequence_index})^exponent_power
   """
-  if exponent_power == 0: # or exponent_power == 2:
+  if exponent_power == 0:  
     return 1
   elif exponent_power%2 == 1:
     return 0 
@@ -444,7 +415,6 @@ def moment(sequence_index: int, exponent_power: int):
         # Record end time
         elapsed_time += end_time - start_time
         sum += 1 
-#    print("{:.2f}".format(sum/np.sqrt(2*sequence_index)**exponent_power))
     print("elapsed time: ", elapsed_time)
     return sum
   
@@ -452,70 +422,5 @@ def moment(sequence_index: int, exponent_power: int):
 
 if __name__ == '__main__':
 
-    # Aprire un file in modalità scrittura
-  d = 4
-  with open('output.txt', 'w') as file:
-      # Scrivere i risultati nel file
-    file.write("un-normalized moments" + " | " + "moments" + " | " + "sequence_index" + " | " + "exponent_power" + '\n')
-    for n in range(1, 5):
-  #    print(moment(n, d))
-      value_moment = moment(n, d)
-      file.write(str(value_moment) + " | " + "{:.2f}".format(value_moment/np.sqrt(2*n)**d) + " | " +  str(n) + " | " + str(d) + '\n')
-
-  # Carica la libreria Rust compilata
-#  lib = cdll.LoadLibrary('./rust_lib/src/lib.rs')
-#  myflib = fmodpy.fimport("boring_library.f90")
-
-#  x_0 = Tree_diagram.create_x_0(3)
-#  x_0.print_tree_diagram()
-#  d= 4
-#  myflib = fmodpy.fimport("boring_library.f90")
-
-#  myflib.foo()
-
-#  print(myflib.foo(a))
- # myflib.GenerateCompleteBinaryTreeNew(1)
- # This will compile and import the Fortran code.
-# (will also recompile if Fortran source changed since last access!)
-#  myflib = fmodpy.fimport("boring_library.f90")
-
-#  a = np.array([[1,2,3,4], [5,6,7,8]], order='F')
-#  myflib.foo(a)
-  # Chiamata alla funzione Rust da Python
- # risultato = lib.somma(10, 5)
-
-  # Stampa il risultato
- # print(f"Il risultato della somma è: {risultato}")
-  
-
-#  print('i = ', i, 'moment = ', moment(1, i))
-
-#  for i in range(4, 5):
-#    print('i = ', i, 'moment = ', moment(1, i))
-#  print(generate_sequences(['1', '2', 'a'], 3), len(generate_sequences(['1', '2', 'a'], 3)))
-"""
-
-if __name__ == '__main__':
-
-  x_0 = Tree_diagram.create_x_0()
-  x_1 = right_shift_homomorphism(x_0)
-#  x_1 = right_shift_homomorphism(Tree_diagram.create_x_0)
-  identity = Tree_diagram(generate_complete_binary_tree(3), generate_complete_binary_tree(3))
-  identity.print_tree_diagram()
-  reduce_tree_diagram(identity).print_tree_diagram()
-  reduce_tree_diagram(reduce_tree_diagram(reduce_tree_diagram(identity))).print_tree_diagram()
-  find_common_tree(x_0,x_1)[0].print_tree_diagram()
-#  find_common_tree(x_0,x_1)[1].print_tree_diagram()
-  product = power_tree_diagram(x_0, 2)
-  print("product new")
-  product.print_tree_diagram()
-  print(type(flatten_list(generate_complete_binary_tree(2))))
-  print(is_in_oriented_subgroup(multiplication_tree_diagrams(x_0,x_1)))
-  print(is_in_oriented_subgroup(multiplication_tree_diagrams(x_1,x_1)))
-"""
-"""
-if __name__ == '__main__':
-  x_0
-  print(from_tree_to_graph(x_0))
-  x_0.print_tree_diagram()
-"""
+  print(generate_complete_binary_tree(3))
+  print(find_normal_form(multiplication_tree_diagrams(right_shift_homomorphism(Tree_diagram.create_x_0()), Tree_diagram.create_x_0())))
