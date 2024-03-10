@@ -152,5 +152,5 @@ cython_debug/
 #.idea/
 
 # folders
-./.vscode
-./bin
+.vscode/
+bin/
