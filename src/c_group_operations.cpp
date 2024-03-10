@@ -1,5 +1,4 @@
 /*
-
 In this file we implement the structure of the Thompson group F.
 The class 'TreeDiagram' allows the user to define elements of F, take their inverses, get the number of leaves, 
 print the elements. 
