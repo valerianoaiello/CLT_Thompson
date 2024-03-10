@@ -18,6 +18,7 @@ using std::vector;
 using std::string;
 using std::endl;
 using std::max;
+using std::pair;
 
 class TreeDiagram {
 private:
@@ -221,7 +222,7 @@ the same elements in F, but with the first having bottom tree equal to the top t
 This function allows to compute the multiplication of two elements in the function
 multiplicationTreeDiagrams
 */
-std::pair<TreeDiagram, TreeDiagram> findCommonTree(const TreeDiagram& treeDiagramOne, const TreeDiagram& treeDiagramTwo) {
+pair<TreeDiagram, TreeDiagram> findCommonTree(const TreeDiagram& treeDiagramOne, const TreeDiagram& treeDiagramTwo) {
     vector<string> treePlus = treeDiagramOne.getTop();
     vector<string> treeMinus = treeDiagramOne.getBottom();
     vector<string> treePlusPrime = treeDiagramTwo.getTop();
@@ -454,8 +455,8 @@ int unnormalized_moment(int sequence_index, int exponent_power) {
 /* 
 The function 'find_nonzero_indices' finds the nonzero indices in a vector.
 */
-std::vector<int> find_nonzero_indices(const std::vector<int>& array) {
-    std::vector<int> nonzero_indices;
+vector<int> find_nonzero_indices(const vector<int>& array) {
+    vector<int> nonzero_indices;
     for (int i = 0; i < array.size(); ++i) {
         if (array[i] != 0) {
             nonzero_indices.push_back(i);
@@ -471,7 +472,7 @@ The first contains exponents of the positive part of the normal form,
 the second that of the negative part, for example {{0, 1, 0}, {1, 0, 0}}
 means that the element has normal form x_1 x_0^{-1}.
 */ 
-std::pair<std::vector<int>, std::vector<int>> find_normal_form(TreeDiagram tree_diagram) {
+pair<vector<int>, vector<int>> find_normal_form(TreeDiagram tree_diagram) {
     int length = tree_diagram.getNumberLeaves();
     vector<int> positive_part(length, 0);
     vector<int> negative_part(length, 0);
@@ -578,9 +579,9 @@ int main() {
         cout<< " " << formanormale[i];
     }
     cout << endl;
-    int d = 10;
+    int d = 4;
     cout << "CIAO \n";
-    for (int n=2; n<3; ++n){
+    for (int n=1; n<5; ++n){
         cout << unnormalized_moment(n,d) << ", ";
     }
 
