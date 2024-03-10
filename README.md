@@ -28,7 +28,9 @@ In this project, we examine the elements
 </p>
 
 
-and we aim to compute $(\sqrt{2 n})^k \varphi(s_n^k)\in \mathbb{N}$ for all $n$, $k$ in $\mathbb{N}_0$.
+We wrote some code to compute $(\sqrt{2 n})^k \varphi(s_n^k)\in \mathbb{N}$ for all $n$, $k$ in $\mathbb{N}_0$.
+We call this quantity 'unnormalized moment'. The code comes in two versions: in Python and C++.
+These are contained in group_operations.py and c_group_operations.cpp
 
 ## Bibliography
 [A1] V. Aiello, On the Alexander Theorem for the oriented Thompson group F. Algebraic & Geometric Topology 20.1 (2020): 429-438.
