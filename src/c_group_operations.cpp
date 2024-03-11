@@ -9,6 +9,7 @@ The class 'TreeDiagram' allows the user to define elements of F, take their inve
 get the number of leaves 'getNumberLeaves', print them 'printTreeDiagram',
 get the top tree 'getTop', get the bottom tree 'getBottom', 
 create the generator x_0 'createX0', apply the right shift homomorphism 'rightShiftHomomorphism',
+apply a left shift homomorphism 'leftShiftHomomorphism',
 apply the flip automorphism 'flipAutomorphism', apply a reduction move on a tree diagram
 'reduceTreeDiagram'. 
 
@@ -100,6 +101,22 @@ public:
 
         treePlusDeepCP.insert(treePlusDeepCP.begin(), "0");
         treeMinusDeepCP.insert(treeMinusDeepCP.begin(), "0");
+
+        return TreeDiagram(treePlusDeepCP, treeMinusDeepCP);
+    }
+
+    // Static method to perform a left shift homomorphism on an input tree diagram
+    static TreeDiagram leftShiftHomomorphism(const TreeDiagram& inputTree) {
+        vector<string> treePlusDeepCP = inputTree.getTop();
+        vector<string> treeMinusDeepCP = inputTree.getBottom();
+
+        for (size_t i = 0; i < treePlusDeepCP.size(); ++i) {
+            treePlusDeepCP[i] = "0" + treePlusDeepCP[i];
+            treeMinusDeepCP[i] = "0" + treeMinusDeepCP[i];
+        }
+
+        treePlusDeepCP.insert(treePlusDeepCP.end(), "1");
+        treeMinusDeepCP.insert(treeMinusDeepCP.end(), "1");
 
         return TreeDiagram(treePlusDeepCP, treeMinusDeepCP);
     }
@@ -550,12 +567,15 @@ pair<vector<int>, vector<int>> find_normal_form(TreeDiagram tree_diagram) {
 int main() {
 
     TreeDiagram x_0 = TreeDiagram::createX0();
+    TreeDiagram g = TreeDiagram::leftShiftHomomorphism(x_0);
+    x_0.printTreeDiagram();
+    g.printTreeDiagram();
     cout << "x_0: " << endl;
 
     TreeDiagram x_1 = TreeDiagram::rightShiftHomomorphism(x_0);
 
+    /*
     
-
     TreeDiagram prodotto;
     vector<int> formanormale;
 
@@ -596,5 +616,7 @@ int main() {
     }
 
     cout << endl;
+    */
+
     return 0;
 } 
