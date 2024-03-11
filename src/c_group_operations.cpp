@@ -1,11 +1,17 @@
 /*
 In this file we implement the structure of the Thompson group F.
-The class 'TreeDiagram' allows the user to define elements of F, take their inverses, get the number of leaves, 
-print the elements. 
 Each element of F is described by a pair of vectors, the first for the top tree, 
 the second for the bottom tree, whose components are string (each string is a word in '0' and '1' 
 representing a leaf, the word describes the shortest path from the root of tree to the leaf, 
 '0'= left edge, '1'= right edge).
+
+The class 'TreeDiagram' allows the user to define elements of F, take their inverses 'inverseTreeDiagram', 
+get the number of leaves 'getNumberLeaves', print them 'printTreeDiagram',
+get the top tree 'getTop', get the bottom tree 'getBottom', 
+create the generator x_0 'createX0', apply the right shift homomorphism 'rightShiftHomomorphism',
+apply the flip automorphism 'flipAutomorphism', apply a reduction move on a tree diagram
+'reduceTreeDiagram'. 
+
 The function 'multiplicationTreeDiagrams' implements the multiplication in the group.
 The function 'unnormalized_moment' computes the unnormalized moments of the chromatic polynomial evaluated at 2.
 */
