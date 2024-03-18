@@ -168,7 +168,7 @@ public:
                     treeMinus.erase(treeMinus.begin() + i + 1);
                 }
             }
-        }//asdf        cout<<vett[2].back() <<endl;
+        }
 
 
         TreeDiagram treeDiagramReduced(treePlus, treeMinus);
@@ -243,23 +243,23 @@ size_t find_longest_string_length(const std::vector<std::string>& arr1,
     size_t max_length = 0;
 
     // Iterate over the first array
-    for (const std::string& str : arr1) {
-        max_length = std::max(max_length, str.length());
+    for (const string& str : arr1) {
+        max_length = max(max_length, str.length());
     }
 
     // Iterate over the second array
-    for (const std::string& str : arr2) {
-        max_length = std::max(max_length, str.length());
+    for (const string& str : arr2) {
+        max_length = max(max_length, str.length());
     }
 
     // Iterate over the third array
-    for (const std::string& str : arr3) {
-        max_length = std::max(max_length, str.length());
+    for (const string& str : arr3) {
+        max_length = max(max_length, str.length());
     }
 
     // Iterate over the fourth array
-    for (const std::string& str : arr4) {
-        max_length = std::max(max_length, str.length());
+    for (const string& str : arr4) {
+        max_length = max(max_length, str.length());
     }
 
     return max_length;
@@ -294,8 +294,7 @@ pair<TreeDiagram, TreeDiagram> findCommonTree(const TreeDiagram& treeDiagramOne,
         int numLeavesTreeDiagramTwo = treeDiagramTwo.getNumberLeaves();
 
         int maxLength = find_longest_string_length(treePlus, treeMinus, treePlusPrime, treeMinusPrime);
-//        cout << "maxLength :" << maxLength << "\n";
-//        int maxLength = max(find_max_length(treePlus), find_max_length(treePlusPrime));
+        
         common_tree = generateCompleteBinaryTree(maxLength);
 
         for (int i=0; i<numLeavesTreeDiagramOne; i++){
@@ -345,7 +344,7 @@ TreeDiagram multiplicationTreeDiagrams(const TreeDiagram& treeDiagramOne, const 
     } else if (treeDiagramTwo.getNumberLeaves() == 1) {
         return treeDiagramOne;
     } else if (treeDiagramOne.getTop() == treeDiagramTwo.getBottom() && treeDiagramOne.getBottom() == treeDiagramTwo.getTop()) {
-        return TreeDiagram(); // Costruttore di default
+        return TreeDiagram(); // Default constructor
     } else {
 
         vector<string> treePlus = treeDiagramOne.getTop();
@@ -362,7 +361,7 @@ TreeDiagram multiplicationTreeDiagrams(const TreeDiagram& treeDiagramOne, const 
         vector<string> prodTreeMinusTemp = treeDiagramTwoPrime.getBottom();
 
         if (prodTreeMinusTemp.size()<1) {
-            cout << "NEW DANGER" << endl;
+            cout << "DANGER" << endl;
         }
         TreeDiagram treeDiagramProd(prodTreePlusTemp, prodTreeMinusTemp);
 
@@ -533,20 +532,18 @@ string action_on_dyadic_rational(const TreeDiagram& group_element, std::string& 
     input_string = remove_trailing_zeroes(input_string);
 
     if (input_string.length() <= longest_word_in_group_element){
+
         length_difference = (longest_word_in_group_element) - input_string.length();
 
         zero_pad = string(length_difference, '0');
 
         input_string = input_string + zero_pad;
         identity_element = TreeDiagram(generateCompleteBinaryTree(longest_word_in_group_element), generateCompleteBinaryTree(longest_word_in_group_element));
-//        identity_element = TreeDiagram(generateCompleteBinaryTree(length_difference), generateCompleteBinaryTree(length_difference));
         group_element_expanded = findCommonTree(identity_element, group_element).second;
-  //      cout << "XXXXX \n";
-     //   identity_element.printTreeDiagram();
-  //      group_element_expanded.printTreeDiagram();
- //       cout << "\n new form of the input number " << input_string  << "\n";
+
     }
     else {
+
         int length_word_in_tree;
 
         length_difference = input_string.length() - longest_word_in_group_element;
@@ -554,16 +551,13 @@ string action_on_dyadic_rational(const TreeDiagram& group_element, std::string& 
         identity_element = TreeDiagram(generateCompleteBinaryTree(input_string.length()), generateCompleteBinaryTree(input_string.length()));
         group_element_expanded = findCommonTree(identity_element, group_element).second;
 
-//        cout << "identity element ";
-//        identity_element.printTreeDiagram();
     }
 
     pair<bool, int> result = find_string_in_array(group_element_expanded.getTop(), input_string);
     if (result.first){
         output_string = remove_trailing_zeroes(group_element_expanded.getBottom()[result.second]);
     }
-//    cout << "\n DENTRO LA FUNZIONE " <<  "result.first " << (result.first ? "true" : "false") <<  "\n";
-//    cout << "\n result.second "  << result.second << " " << group_element_expanded.getTop()[result.second ] << " ->" << group_element_expanded.getBottom()[result.second ] <<"\n";//    cout << "\n input_string " << input_string  << "\n";
+
     return output_string;
 }
 
@@ -603,6 +597,7 @@ pair<vector<int>, vector<int>> find_normal_form(TreeDiagram tree_diagram) {
 
     size_t last_digit_1_position;
     size_t the_last_digit_0_before_last_digit_1;
+    
     // Iterate over each level of the tree
     positive_part[0] = top_tree[0].length()-1;
     for (int i = 1; i < length; ++i) {
