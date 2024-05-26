@@ -1,4 +1,4 @@
-# An *oriented* central limit theorem for Thompson group $F$
+# Investigations around a possible central limit theorem for the oriented Thompson group $\vec{F}$
 
 ## The Thompson group $F$
 The Thompson group $F$ admits an infinite presentations 
@@ -24,7 +24,7 @@ Consider the linear functional $\varphi: \mathbb{C}[F] \to \mathbb{C}$ defined a
 
 In this project, we examine the elements
 <p align="center">
- $a_n:=\frac{(x_n+x_n^{-1})}{\sqrt{2}} \qquad$       $s_n:=\frac{a_0 + ... + a_{n-1}}{\sqrt{n}}$.
+ $a_n:=\frac{x_n+x_n^{-1}}{\sqrt{2}} \qquad$       $s_n:=\frac{a_0 + ... + a_{n-1}}{\sqrt{n}}$.
 </p>
 
 
@@ -32,10 +32,17 @@ We wrote some code to compute $(\sqrt{2 n})^k \varphi(s_n^k)\in \mathbb{N}$ for 
 We call this quantity 'unnormalized moment'. The code comes in two versions: in Python and C++.
 These are contained in group_operations.py and c_group_operations.cpp
 
+## Conclusions
+
+It turned out that a central limit theorem for the chromatic state is not possibile. 
+More details are contained in [A3]
+
 ## Bibliography
 [A1] V. Aiello, On the Alexander Theorem for the oriented Thompson group F. Algebraic & Geometric Topology 20.1 (2020): 429-438.
 
 [A2] V. Aiello, An introduction to Thompson knot theory and to Jones subgroups. accepted for publication in J. of Knot Theory and its Ramifications (2022).
+
+[A3] V. Aiello, An extension of Krishnan's central limit theorem to the Brown-Thompson groups, preprint.
 
 [B] J. Belk, Thompson's group F. Ph.D. Thesis (Cornell University).  preprint arXiv:0708.3609 (2007).
 
