@@ -153,5 +153,5 @@ cython_debug/
 
 # folders
 .vscode/
-bin/
+./bin/
 .github/workflows
