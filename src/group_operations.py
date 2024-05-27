@@ -24,6 +24,7 @@ import numpy as np
 from itertools import product
 import time
 import numpy as np
+import multiprocessing
 
 #import sys
 #sys.path.append('/Users/valerianoaiello/Documents/GitHub/CLT_Thompson/src/')
@@ -427,8 +428,59 @@ def moment(sequence_index: int, exponent_power: int):
     return sum
   
 
+def unnormalized_moment_parallel(sequence_index: int, exponent_power: int):
+  """
+  The function 'unnormalized_moment_parallel' calculates the unnormalized mmoments in a parallel way.
+  """
+  if exponent_power == 0:  
+    return 1
+  elif exponent_power%2 == 1:
+    return 0 
+  elif exponent_power > 0:
+    # we create all the elements that we need
+    x_0 = Tree_diagram.create_x_0()
+    list_of_elements = [x_0]
+    for i in range(1, sequence_index):
+      list_of_elements.append(right_shift_homomorphism(list_of_elements[-1]))
+    
+    # Use map to apply the inverse function to each element
+    inverse_elements = list(map(lambda x: x.inverse_tree_diagram(), list_of_elements))
+
+    # This list contains all possibile sequences of length 'exponent_power' of the elements of 'list_of_elements' and 'inverse_elements'
+    summands = generate_sequences(list_of_elements + inverse_elements, exponent_power)
+
+    ### BEGINNING OF PARALLEL COMPUTATIONS
+    num_cores = multiprocessing.cpu_count()
+    
+    # Create a multiprocessing pool
+    pool = multiprocessing.Pool(processes=num_cores)
+    
+    # Map the square function to each number in parallel
+    results = pool.map(check_if_oriented, summands)
+
+    sum = np.sum(results)
+
+
+    return sum
+  
+"""
+The function 'check_if_oriented' is used in 'unnormalized_moment_parallel'. 
+It takes a list as an input, the list contains elements of F, 
+it calculates their product and returns 1 if the element is in the oriented subgroup,
+0 otherwise.
+"""
+def check_if_oriented(array: list):
+  sum = 0
+  for i in range(len(array)):
+    product_of_elements = multiply_many_tree_diagrams(array)
+
+    if is_in_oriented_subgroup(product_of_elements):
+      # Record end time
+      sum = 1 
+  return sum
 
 if __name__ == '__main__':
-
-  print(generate_complete_binary_tree(3))
-  print(find_normal_form(multiplication_tree_diagrams(right_shift_homomorphism(Tree_diagram.create_x_0()), Tree_diagram.create_x_0())))
+  n = 3
+  d = 8
+  print(unnormalized_moment_parallel(n,d))
+#  print(find_normal_form(multiplication_tree_diagrams(right_shift_homomorphism(Tree_diagram.create_x_0()), Tree_diagram.create_x_0())))
