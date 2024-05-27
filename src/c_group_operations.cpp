@@ -9,11 +9,13 @@ The class 'TreeDiagram' allows the user to define elements of F, take their inve
 get the number of leaves 'getNumberLeaves', print them 'printTreeDiagram',
 get the top tree 'getTop', get the bottom tree 'getBottom', 
 create the generator x_0 'createX0', apply the right shift homomorphism 'rightShiftHomomorphism',
+apply a left shift homomorphism 'leftShiftHomomorphism',
 apply the flip automorphism 'flipAutomorphism', apply a reduction move on a tree diagram
 'reduceTreeDiagram'. 
 
 The function 'multiplicationTreeDiagrams' implements the multiplication in the group.
-The function 'unnormalized_moment' computes the unnormalized moments of the chromatic polynomial evaluated at 2.
+The function 'unnormalized_chromatic_moment' computes the unnormalized moments of 
+the chromatic polynomial evaluated at 2.
 */
 
 #include <iostream>
@@ -22,13 +24,17 @@ The function 'unnormalized_moment' computes the unnormalized moments of the chro
 #include <vector>
 #include <algorithm>
 #include <string>
+#include <chrono>
+//#include <omp.h> // Include OpenMP header
 
 using std::cout;
+using std::cin;
 using std::vector;
 using std::string;
-using std::endl;
+using std::endl;    
 using std::max;
 using std::pair;
+using std::make_pair;
 
 class TreeDiagram {
 private:
@@ -77,15 +83,8 @@ public:
     }
 
     // Static method to create a specific tree diagram X_0, the first generator of the group in the infinite presentation
-    static TreeDiagram createX0(int version = 2) {
-        if (version == 2) {
-            return TreeDiagram({"00", "01", "1"}, {"0", "10", "11"});
-        } else if (version == 3) {
-            return TreeDiagram({"00", "01", "02", "1", "2"}, {"0", "1", "20", "21", "22"});
-        } else {
-            // Add error handling or default behavior if needed
-            return TreeDiagram();
-        }
+    static TreeDiagram createX0() {
+        return TreeDiagram({"00", "01", "1"}, {"0", "10", "11"});
     }
 
     // Static method to perform a right shift homomorphism on an input tree diagram
@@ -100,6 +99,22 @@ public:
 
         treePlusDeepCP.insert(treePlusDeepCP.begin(), "0");
         treeMinusDeepCP.insert(treeMinusDeepCP.begin(), "0");
+
+        return TreeDiagram(treePlusDeepCP, treeMinusDeepCP);
+    }
+
+    // Static method to perform a left shift homomorphism on an input tree diagram
+    static TreeDiagram leftShiftHomomorphism(const TreeDiagram& inputTree) {
+        vector<string> treePlusDeepCP = inputTree.getTop();
+        vector<string> treeMinusDeepCP = inputTree.getBottom();
+
+        for (size_t i = 0; i < treePlusDeepCP.size(); ++i) {
+            treePlusDeepCP[i] = "0" + treePlusDeepCP[i];
+            treeMinusDeepCP[i] = "0" + treeMinusDeepCP[i];
+        }
+
+        treePlusDeepCP.insert(treePlusDeepCP.end(), "1");
+        treeMinusDeepCP.insert(treeMinusDeepCP.end(), "1");
 
         return TreeDiagram(treePlusDeepCP, treeMinusDeepCP);
     }
@@ -140,7 +155,7 @@ public:
 
         // This is just a check to avoid errors
         if (treeMinus.size() != treePlus.size()) {
-            cout << "DANGER, THE TREES DO NOT HAVE THE SAME SIZE" << treeMinus.size() << " " << treePlus.size() << endl;
+            cout << "DANGER: THE TREES DO NOT HAVE THE SAME SIZE" << treeMinus.size() << " " << treePlus.size() << endl;
             TreeDiagram treeDiagramReduced(treePlus, treeMinus);
             treeDiagramReduced.printTreeDiagram();
             return treeDiagramReduced;
@@ -156,7 +171,7 @@ public:
                     treeMinus.erase(treeMinus.begin() + i + 1);
                 }
             }
-        }//asdf        cout<<vett[2].back() <<endl;
+        }
 
 
         TreeDiagram treeDiagramReduced(treePlus, treeMinus);
@@ -212,18 +227,46 @@ return sum;
 This function checks if a given element of F, treeDiagram, is in the oriented subgroup or not.
 */
 bool is_in_oriented_subgroup(const TreeDiagram& treeDiagram) {
-for (std::size_t i = 0; i < treeDiagram.getTop().size(); ++i) {
-    const string& wordPlus = treeDiagram.getTop()[i];
-    const string& wordMinus = treeDiagram.getBottom()[i];
+    for (std::size_t i = 0; i < treeDiagram.getTop().size(); ++i) {
+        const string& wordPlus = treeDiagram.getTop()[i];
+        const string& wordMinus = treeDiagram.getBottom()[i];
 
-    if ((alternating_sum(wordPlus) - alternating_sum(wordMinus)) % 2 != 0) {
-        return false;
+        if ((alternating_sum(wordPlus) - alternating_sum(wordMinus)) % 2 != 0) {
+            return false;
+        }
     }
-}
-return true;
+    return true;
 }
 
+// Function to find the length of the longest string among all arrays
+size_t find_longest_string_length(const std::vector<std::string>& arr1,
+                                  const std::vector<std::string>& arr2,
+                                  const std::vector<std::string>& arr3,
+                                  const std::vector<std::string>& arr4) {
+    size_t max_length = 0;
 
+    // Iterate over the first array
+    for (const string& str : arr1) {
+        max_length = max(max_length, str.length());
+    }
+
+    // Iterate over the second array
+    for (const string& str : arr2) {
+        max_length = max(max_length, str.length());
+    }
+
+    // Iterate over the third array
+    for (const string& str : arr3) {
+        max_length = max(max_length, str.length());
+    }
+
+    // Iterate over the fourth array
+    for (const string& str : arr4) {
+        max_length = max(max_length, str.length());
+    }
+
+    return max_length;
+}
 
 /*
 The function findCommonTree takes two TreeDiagrams as input, treeDiagramOne and treeDiagramTwo, 
@@ -231,8 +274,10 @@ it returns two new TreeDiagrams, treeDiagramOneNew and treeDiagramTwoNew, that r
 the same elements in F, but with the first having bottom tree equal to the top tree of the second.
 This function allows to compute the multiplication of two elements in the function
 multiplicationTreeDiagrams
+The variable 'minimal_search' if equal to 0 means that we look for the minimal common tree.
 */
-pair<TreeDiagram, TreeDiagram> findCommonTree(const TreeDiagram& treeDiagramOne, const TreeDiagram& treeDiagramTwo) {
+pair<TreeDiagram, TreeDiagram> findCommonTree(const TreeDiagram& treeDiagramOne, const TreeDiagram& treeDiagramTwo, const int minimal_search=0) {
+
     vector<string> treePlus = treeDiagramOne.getTop();
     vector<string> treeMinus = treeDiagramOne.getBottom();
     vector<string> treePlusPrime = treeDiagramTwo.getTop();
@@ -250,17 +295,25 @@ pair<TreeDiagram, TreeDiagram> findCommonTree(const TreeDiagram& treeDiagramOne,
         // common_tree will be the bottom tree of treeDiagramOne and the top tree of treeDiagramTwo
         vector<string> common_tree;
 
-        int numLeavesTreeDiagramOne = treeDiagramOne.getNumberLeaves();
-        int numLeavesTreeDiagramTwo = treeDiagramTwo.getNumberLeaves();
+        int numberLeavesTreeDiagramOne = treeDiagramOne.getNumberLeaves();
+        int numberLeavesTreeDiagramTwo = treeDiagramTwo.getNumberLeaves();
+        int maxLength;
 
-        int maxLength = max(numLeavesTreeDiagramOne, numLeavesTreeDiagramTwo)-1;
-//        int maxLength = max(find_max_length(treePlus), find_max_length(treePlusPrime));
+        if (minimal_search == 0){
+
+            maxLength = find_longest_string_length(treePlus, treeMinus, treePlusPrime, treeMinusPrime);
+
+        }
+        else{
+            maxLength = max(numberLeavesTreeDiagramOne, numberLeavesTreeDiagramTwo)-1;
+        }
+        
         common_tree = generateCompleteBinaryTree(maxLength);
 
-        for (int i=0; i<numLeavesTreeDiagramOne; i++){
-            if(treeMinus[i].size()<maxLength){
-                tree_complete_temp = generateCompleteBinaryTree(maxLength-treeMinus[i].size());
-                for (int j=0; j<tree_complete_temp.size(); j++){
+        for (int i=0; i<numberLeavesTreeDiagramOne; ++i){
+            if(treeMinus[i].length()<maxLength){
+                tree_complete_temp = generateCompleteBinaryTree(maxLength-(treeMinus[i].length()));
+                for (int j=0; j<tree_complete_temp.size(); ++j){
                     treePlusNew.push_back(treePlus[i]+tree_complete_temp[j]);
                 }
             } else {
@@ -269,10 +322,10 @@ pair<TreeDiagram, TreeDiagram> findCommonTree(const TreeDiagram& treeDiagramOne,
             
         }
 
-        for (int i=0; i<numLeavesTreeDiagramTwo; i++){
-            if(treePlusPrime[i].size()<maxLength){
-                tree_complete_temp = generateCompleteBinaryTree(maxLength-treePlusPrime[i].size());
-                for (int j=0; j<tree_complete_temp.size(); j++){
+        for (int i=0; i<numberLeavesTreeDiagramTwo; ++i){
+            if(treePlusPrime[i].length()<maxLength){
+                tree_complete_temp = generateCompleteBinaryTree(maxLength-(treePlusPrime[i].length()));
+                for (int j=0; j<tree_complete_temp.size(); ++j){
                     treeMinusPrimeNew.push_back(treeMinusPrime[i]+tree_complete_temp[j]);
 
                 }
@@ -297,14 +350,16 @@ pair<TreeDiagram, TreeDiagram> findCommonTree(const TreeDiagram& treeDiagramOne,
 The function 'multiplicationTreeDiagrams' implements the multiplication of two elements of F.
 The inputs are two TreeDiagrams: treeDiagramOne, treeDiagramTwo.
 The output is their product: treeDiagramProd.
+The variable 'minimal_search' if equal to 0 means that we look for the minimal common tree when we use the function 
+'findCommonTree'.
 */
-TreeDiagram multiplicationTreeDiagrams(const TreeDiagram& treeDiagramOne, const TreeDiagram& treeDiagramTwo) {
+TreeDiagram multiplicationTreeDiagrams(const TreeDiagram& treeDiagramOne, const TreeDiagram& treeDiagramTwo, int minimal_search = 0) {
     if (treeDiagramOne.getNumberLeaves() == 1) {
         return treeDiagramTwo;
     } else if (treeDiagramTwo.getNumberLeaves() == 1) {
         return treeDiagramOne;
     } else if (treeDiagramOne.getTop() == treeDiagramTwo.getBottom() && treeDiagramOne.getBottom() == treeDiagramTwo.getTop()) {
-        return TreeDiagram(); // Costruttore di default
+        return TreeDiagram(); // Default constructor
     } else {
 
         vector<string> treePlus = treeDiagramOne.getTop();
@@ -312,7 +367,7 @@ TreeDiagram multiplicationTreeDiagrams(const TreeDiagram& treeDiagramOne, const 
         vector<string> treePlusPrime = treeDiagramTwo.getTop();
         vector<string> treeMinusPrime = treeDiagramTwo.getBottom();
 
-        auto tupleContainingUnreducedTreeDiagrams = findCommonTree(treeDiagramOne, treeDiagramTwo);
+        auto tupleContainingUnreducedTreeDiagrams = findCommonTree(treeDiagramOne, treeDiagramTwo, minimal_search);
 
         TreeDiagram treeDiagramOnePrime = tupleContainingUnreducedTreeDiagrams.first;
         TreeDiagram treeDiagramTwoPrime = tupleContainingUnreducedTreeDiagrams.second;
@@ -321,7 +376,7 @@ TreeDiagram multiplicationTreeDiagrams(const TreeDiagram& treeDiagramOne, const 
         vector<string> prodTreeMinusTemp = treeDiagramTwoPrime.getBottom();
 
         if (prodTreeMinusTemp.size()<1) {
-            cout << "NEW DANGER" << endl;
+            cout << "DANGER" << endl;
         }
         TreeDiagram treeDiagramProd(prodTreePlusTemp, prodTreeMinusTemp);
 
@@ -343,10 +398,13 @@ TreeDiagram multiplicationTreeDiagrams(const TreeDiagram& treeDiagramOne, const 
 /*
 The function 'multiplyManyTreeDiagrams' has as input a collection of TreeDiagrams, collectionOfTreeDiagram.
 The output is their product.
+The variable 'minimal_search' if equal to 0 means that we look for the minimal common tree when we use the function 
+'findCommonTree'.
 */
-TreeDiagram multiplyManyTreeDiagrams(const vector<TreeDiagram>& collectionOfTreeDiagram) {
+TreeDiagram multiplyManyTreeDiagrams(const vector<TreeDiagram>& collectionOfTreeDiagram, const int minimal_search = 0) {
     size_t numberOfElements = collectionOfTreeDiagram.size();
     TreeDiagram product;
+
 
     if (numberOfElements == 0) {
         return product;
@@ -354,7 +412,7 @@ TreeDiagram multiplyManyTreeDiagrams(const vector<TreeDiagram>& collectionOfTree
         return collectionOfTreeDiagram[0];
     } else {
         for (size_t i = 0; i < numberOfElements; ++i) {
-            product = multiplicationTreeDiagrams(product, collectionOfTreeDiagram[i]);
+            product = multiplicationTreeDiagrams(product, collectionOfTreeDiagram[i], minimal_search);
         }
         return product;
     }
@@ -367,7 +425,7 @@ from the vector {0, ..., n-1}
 vector<vector<int>> generateSequences(int n, int d) {
     // Create a vector containing elements from 0 to n-1
     vector<int> elements;
-    for (int i = 0; i < n; i++) {
+    for (int i = 0; i < n; ++i) {
         elements.push_back(i);
     }
 
@@ -407,11 +465,239 @@ vector<vector<int>> generateSequences(int n, int d) {
 }
 
 
+
 /* 
-The function 'unnormalized_moment' calculates the unnormalized mmoments, that is
-(s_{sequence_index})^(exponent_power) * (sqrt{exponent_power*sequence_index})^exponent_power
+The function 'find_nonzero_indices' finds the nonzero indices in a vector.
 */
-int unnormalized_moment(int sequence_index, int exponent_power) {
+vector<int> find_nonzero_indices(const vector<int>& array) {
+    vector<int> nonzero_indices;
+    for (int i = 0; i < array.size(); ++i) {
+        if (array[i] != 0) {
+            nonzero_indices.push_back(i);
+        }
+    }
+    return nonzero_indices;
+}
+
+/*
+The function 'find_string_in_array' takes a vector of strings 'array_of_strings' and a string 'input_string'
+as inputs and returns a pair as an output. The first entry of the output is boolean variable,
+with value true if the string was found, false otherwise, 
+the second entry is the index of the vector where the string was found.
+*/
+pair<bool, int> find_string_in_array(const vector<string>& array_of_strings, const string& input_string) {
+    for (int i = 0; i < array_of_strings.size(); ++i) {
+        if (array_of_strings[i] == input_string) {
+        // Returns a pair with the flag true (the string is found) and the corresponding index.
+            return make_pair(true, i);
+        }
+    }
+    // If the string is not found, returns a pair with the flag false and a non-significant index.
+    return make_pair(false, -1);
+}
+
+/*
+This function takes a binary word 'input_string' and "cleans" it by removing 
+all the zeroes at the end. 
+If the word consists only of '0's, it returns the string "0".
+*/
+string remove_trailing_zeroes(const string& input_string) {
+    // Find the position of the last non-zero character
+    size_t last_non_zero_pos = input_string.find_last_not_of('0');
+    
+    // If no non-zero character found, return an empty string
+    if (last_non_zero_pos == std::string::npos)
+        return "0";
+
+    // Extract the substring containing non-zero characters
+    return input_string.substr(0, last_non_zero_pos + 1);
+}
+
+
+/*
+The function 'action_on_dyadic_rational' takes a TreeDiagram and a dyadic rational 'input_string'
+(expressed as a binary word, a string) as inputs and returns the binary word 
+representing the output
+*/
+string action_on_dyadic_rational(const TreeDiagram& group_element, std::string& input_string){
+    // 'longest_word_in_group_element' contains the length of the longest word in the       
+    // top and bottom trees    
+    int longest_word_in_group_element = find_longest_string_length(group_element.getTop(), group_element.getBottom(), vector<string>{"0"}, vector<string>{"0"});
+
+    vector<string> top_tree = group_element.getTop();
+    vector<string> bottom_tree = group_element.getBottom();
+
+    // 'zero_pad' will host the additional zeroes to add at the end of 'input_string'
+    string zero_pad;
+
+    // 'output_string' contains the binary word that represents the image of 'input_string'
+    // under the action of 'group_element'
+    string output_string;
+
+    // 'group_element_expanded' will host another representative of 'group_element', used in case 
+    // the length of 'input_string' is longer that the length of the longest word in
+    // the top/bottom trees of 'group_element' is shorter than the length of 'input_string'
+    TreeDiagram group_element_expanded;
+
+    // 'identity_element' is will host a non-reduced representative of the neutral element of the group.
+    // Together with the function 'findCommonTree' will allow us to find a representative of
+    // 'group_element' where its top tree contains 'input_string'
+    TreeDiagram identity_element;
+
+    // The variable 'length_difference' contains the difference between the length of the longest word
+    // in the top/bottom trees of 'group_element' and 'input_string'
+    int length_difference;
+    input_string = remove_trailing_zeroes(input_string);
+
+    if (input_string.length() <= longest_word_in_group_element){
+
+        length_difference = (longest_word_in_group_element) - input_string.length();
+
+        zero_pad = string(length_difference, '0');
+
+        input_string = input_string + zero_pad;
+        identity_element = TreeDiagram(generateCompleteBinaryTree(longest_word_in_group_element), generateCompleteBinaryTree(longest_word_in_group_element));
+        group_element_expanded = findCommonTree(identity_element, group_element).second;
+
+    }
+    else {
+
+        int length_word_in_tree;
+
+        length_difference = input_string.length() - longest_word_in_group_element;
+
+        identity_element = TreeDiagram(generateCompleteBinaryTree(input_string.length()), generateCompleteBinaryTree(input_string.length()));
+        group_element_expanded = findCommonTree(identity_element, group_element).second;
+
+    }
+
+    pair<bool, int> result = find_string_in_array(group_element_expanded.getTop(), input_string);
+    if (result.first){
+        output_string = remove_trailing_zeroes(group_element_expanded.getBottom()[result.second]);
+    }
+
+    return output_string;
+}
+
+
+/*
+The function 'is_in_parabolic_subgroup' checks if a given element of F, treeDiagram, is in the oriented subgroup or not.
+*/
+bool is_in_parabolic_subgroup(const TreeDiagram& treeDiagram, string dyadic_rational) {
+    dyadic_rational = remove_trailing_zeroes(dyadic_rational);
+    string image_of_dyadic_rational = action_on_dyadic_rational(treeDiagram, dyadic_rational);
+
+    if (remove_trailing_zeroes(image_of_dyadic_rational) == remove_trailing_zeroes(dyadic_rational)) {
+        return true;
+    }
+    
+    return false;
+}
+
+
+/*
+The function 'find_normal_form' finds the normal form of a binary tree diagram.
+The input is a TreeDiagram. The output are two arrays of integers.
+The first contains exponents of the positive part of the normal form,
+the second that of the negative part, for example {{0, 1, 0}, {1, 0, 0}}
+means that the element has normal form x_1 x_0^{-1}.
+*/ 
+pair<vector<int>, vector<int>> find_normal_form(TreeDiagram tree_diagram) {
+    int length = tree_diagram.getNumberLeaves();
+    vector<int> positive_part(length, 0);
+    vector<int> negative_part(length, 0);
+
+    auto top_tree = tree_diagram.getTop();
+    auto bottom_tree = tree_diagram.getBottom();
+
+    positive_part[0] = top_tree[0].size() - 1;
+    negative_part[0] = bottom_tree[0].size() - 1;
+
+    size_t last_digit_1_position;
+    size_t the_last_digit_0_before_last_digit_1;
+
+    // Iterate over each level of the tree
+    positive_part[0] = top_tree[0].length()-1;
+    negative_part[0] = bottom_tree[0].length()-1;
+    for (int i = 1; i < length; ++i) {
+        if (top_tree[i].back() == '0') {
+            last_digit_1_position = top_tree[i].find_last_of('1');
+            the_last_digit_0_before_last_digit_1 = top_tree[i].substr(0, last_digit_1_position + 1).find_last_of('0');
+            if (the_last_digit_0_before_last_digit_1 != std::string::npos){
+                positive_part[i] = top_tree[i].length() - top_tree[i].substr(0, last_digit_1_position + 1).length();
+            }
+            else{
+                positive_part[i] = top_tree[i].length() - top_tree[i].substr(0, last_digit_1_position + 1).length() - 1;
+
+            }
+        } 
+
+        // Calculate negative part for the current level
+        last_digit_1_position = bottom_tree[i].find_last_of('1');
+        the_last_digit_0_before_last_digit_1 = bottom_tree[i].substr(0, last_digit_1_position + 1).find_last_of('0');
+        if (bottom_tree[i].back() == '0') {
+            last_digit_1_position = bottom_tree[i].find_last_of('1');
+            the_last_digit_0_before_last_digit_1 = bottom_tree[i].substr(0, last_digit_1_position + 1).find_last_of('0');
+            if (the_last_digit_0_before_last_digit_1 != std::string::npos){
+                negative_part[i] = bottom_tree[i].length() - bottom_tree[i].substr(0, last_digit_1_position + 1).length();
+            }
+            else{
+                negative_part[i] = bottom_tree[i].length() - bottom_tree[i].substr(0, last_digit_1_position + 1).length() - 1;
+
+            }
+        } 
+    }
+
+
+    // Find nonzero indices in positive and negative parts
+    auto nonzero_indices_positive_part = find_nonzero_indices(positive_part);
+    auto nonzero_indices_negative_part = find_nonzero_indices(negative_part);
+
+    // Calculate lengths of positive and negative parts
+    int length_positive_part = (!nonzero_indices_positive_part.empty()) ? nonzero_indices_positive_part.back() + 1 : 0;
+    int length_negative_part = (!nonzero_indices_negative_part.empty()) ? nonzero_indices_negative_part.back() + 1 : 0;
+
+    // Resize vectors to the maximum length between positive and negative parts
+    if (length_positive_part + length_negative_part > 0) {
+        int max_length = std::max(length_positive_part, length_negative_part);
+        positive_part.resize(max_length + 1);
+        negative_part.resize(max_length + 1);
+    } else {
+        positive_part.resize(1);
+        negative_part.resize(1);
+    }
+
+    return make_pair(positive_part, negative_part);
+}
+
+/*
+The function 'print_arrays' takes a pair of arrays as input and prints them.
+*/
+void print_arrays(const pair<vector<int>, vector<int>>& arrays) {
+    cout << "First array:" << endl;
+    for (int i : arrays.first) {
+        cout << i << " ";
+    }
+    cout << endl;
+
+    cout << "Second array:" << endl;
+    for (int i : arrays.second) {
+        cout << i << " ";
+    }
+    cout << endl;
+}
+
+
+/* 
+The function 'unnormalized_chromatic_moment' calculates the unnormalized mmoments, that is
+(s_{sequence_index})^(exponent_power) * (sqrt{exponent_power*sequence_index})^exponent_power.
+The parameter 'minimal_search' if set equal to 0 means that the function 'findCommonTree'
+used in 'multiplyManyTreeDiagrams'
+*/
+int unnormalized_chromatic_moment(int sequence_index, int exponent_power, int minimal_search = 0) {
+
+    auto start = std::chrono::high_resolution_clock::now();
+
     // Base case for exponent_power equal to 0
     if (exponent_power == 0) {
         return 1;
@@ -438,18 +724,83 @@ int unnormalized_moment(int sequence_index, int exponent_power) {
         TreeDiagram summand;
 
         // Iterate through each combination of indices
-        for (int i = 0; i < collection_of_indices_of_summands.size(); i++) {
+        for (int i = 0; i < collection_of_indices_of_summands.size(); ++i) {
             vector<TreeDiagram> factors_in_summand;
 
             // Create factors for the current summand
-            for (int j = 0; j < exponent_power; j++) {
+            for (int j = 0; j < exponent_power; ++j) {
                 factors_in_summand.push_back(listOfElements[collection_of_indices_of_summands[i][j]]);
             } 
             // Multiply the factors to obtain the current summand
-            summand = multiplyManyTreeDiagrams(factors_in_summand);
+            summand = multiplyManyTreeDiagrams(factors_in_summand, minimal_search);
 
             // Check if the summand is in the oriented subgroup
             if (is_in_oriented_subgroup(summand)) {
+                sum += 1;
+//                cout << "NEW ELEMENT" << endl; 
+//                print_arrays(find_normal_form(summand));
+            }
+            summand = TreeDiagram({"0"}, {"0"}); // Reset summand for the next iteration
+        } 
+        cout << "For n=" << sequence_index << " and d=" << exponent_power << " the un-normalized moment is: " << sum << "\n";
+
+        // End of processing time
+        auto end = std::chrono::high_resolution_clock::now();
+
+        // Calculates the difference between the starting moment and the end
+        std::chrono::duration<double> elapsed = end - start;
+
+        // Print the total time employed
+        std::cout << "Elapsed time: " << elapsed.count() << " seconds" << std::endl;
+
+        return sum;
+    }
+
+    return 0; // Default case
+}
+
+
+
+/* 
+The function 'parabolic_moment' calculates the mmoments, that is the value of the
+matrix coefficient in the quasi-regular representation corresponding to the vector 
+of the identity for (s_{sequence_index})^(exponent_power).
+'dyadic_rational' is a binary word representing the dyadic rational fixed by the parabolic subgroup.
+*/
+int unnormalized_parabolic_moment(int sequence_index, int exponent_power, string dyadic_rational, int minimal_search = 0) {
+
+    // We remove the zeroes at the end of 'dyadic_rational' and find the shortest word representing it
+    dyadic_rational = remove_trailing_zeroes(dyadic_rational);
+
+    if (exponent_power > 0) {
+        // Create necessary elements
+        int sum = 0; 
+        TreeDiagram x_0 = TreeDiagram::createX0();
+        vector<TreeDiagram> listOfElements = {x_0, x_0.inverseTreeDiagram()};
+        
+        // Generate additional elements up to sequence_index
+        for (int i = 1; i < sequence_index; ++i) {
+            listOfElements.push_back(TreeDiagram::rightShiftHomomorphism(listOfElements.back()));
+            listOfElements.push_back(listOfElements.back().inverseTreeDiagram());
+        }
+
+        // Generate all possible combinations of indices for summands
+        vector<vector<int>> collection_of_indices_of_summands = generateSequences(listOfElements.size(), exponent_power);        
+        TreeDiagram summand;
+
+        // Iterate through each combination of indices
+        for (int i = 0; i < collection_of_indices_of_summands.size(); ++i) {
+            vector<TreeDiagram> factors_in_summand;
+
+            // Create factors for the current summand
+            for (int j = 0; j < exponent_power; ++j) {
+                factors_in_summand.push_back(listOfElements[collection_of_indices_of_summands[i][j]]);
+            } 
+            // Multiply the factors to obtain the current summand
+            summand = multiplyManyTreeDiagrams(factors_in_summand, minimal_search);
+
+            // Check if the summand is in the oriented subgroup
+            if (is_in_parabolic_subgroup(summand, dyadic_rational)) {
                 sum += 1;
             }
             summand = TreeDiagram({"0"}, {"0"}); // Reset summand for the next iteration
@@ -461,101 +812,15 @@ int unnormalized_moment(int sequence_index, int exponent_power) {
     return 0; // Default case
 }
 
-
-/* 
-The function 'find_nonzero_indices' finds the nonzero indices in a vector.
-*/
-vector<int> find_nonzero_indices(const vector<int>& array) {
-    vector<int> nonzero_indices;
-    for (int i = 0; i < array.size(); ++i) {
-        if (array[i] != 0) {
-            nonzero_indices.push_back(i);
-        }
-    }
-    return nonzero_indices;
-}
-
-/*
-The function 'find_normal_form' finds the normal form of a binary tree diagram.
-The input is a TreeDiagram. The output are two arrays of integers.
-The first contains exponents of the positive part of the normal form,
-the second that of the negative part, for example {{0, 1, 0}, {1, 0, 0}}
-means that the element has normal form x_1 x_0^{-1}.
-*/ 
-pair<vector<int>, vector<int>> find_normal_form(TreeDiagram tree_diagram) {
-    int length = tree_diagram.getNumberLeaves();
-    vector<int> positive_part(length, 0);
-    vector<int> negative_part(length, 0);
-
-    auto top_tree = tree_diagram.getTop();
-    auto bottom_tree = tree_diagram.getBottom();
-
-    positive_part[0] = top_tree[0].size() - 1;
-    negative_part[0] = bottom_tree[0].size() - 1;
-
-    size_t last_digit_1_position;
-    size_t the_last_digit_0_before_last_digit_1;
-    // Iterate over each level of the tree
-    positive_part[0] = top_tree[0].length()-1;
-    for (int i = 1; i < length; ++i) {
-        if (top_tree[i].back() == '0') {
-            last_digit_1_position = top_tree[i].find_last_of('1');
-            the_last_digit_0_before_last_digit_1 = top_tree[i].substr(0, last_digit_1_position + 1).find_last_of('0');
-            if (the_last_digit_0_before_last_digit_1 != std::string::npos){
-                positive_part[i] = top_tree[i].length() - top_tree[i].substr(0, last_digit_1_position + 1).length();
-            }
-            else{
-                positive_part[i] = top_tree[i].length() - top_tree[i].substr(0, last_digit_1_position + 1).length() - 1;
-
-            }
-        } 
-
-        // Calculate negative part for the current level
-        last_digit_1_position = bottom_tree[i].find_last_of('1');
-        the_last_digit_0_before_last_digit_1 = bottom_tree[i].substr(0, last_digit_1_position + 1).find_last_of('0');
-        if (bottom_tree[i].back() == '0') {
-            last_digit_1_position = bottom_tree[i].find_last_of('1');
-            the_last_digit_0_before_last_digit_1 = bottom_tree[i].substr(0, last_digit_1_position + 1).find_last_of('0');
-            if (the_last_digit_0_before_last_digit_1 != std::string::npos){
-                negative_part[i] = top_tree[i].length() - top_tree[i].substr(0, last_digit_1_position + 1).length();
-            }
-            else{
-                negative_part[i] = top_tree[i].length() - top_tree[i].substr(0, last_digit_1_position + 1).length() - 1;
-
-            }
-        } 
-    }
-
-    // Find nonzero indices in positive and negative parts
-    auto nonzero_indices_positive_part = find_nonzero_indices(positive_part);
-    auto nonzero_indices_negative_part = find_nonzero_indices(negative_part);
-
-    // Calculate lengths of positive and negative parts
-    int length_positive_part = (!nonzero_indices_positive_part.empty()) ? nonzero_indices_positive_part.back() + 1 : 0;
-    int length_negative_part = (!nonzero_indices_negative_part.empty()) ? nonzero_indices_negative_part.back() + 1 : 0;
-
-    // Resize vectors to the maximum length between positive and negative parts
-    if (length_positive_part + length_negative_part > 0) {
-        int max_length = std::max(length_positive_part, length_negative_part);
-        positive_part.resize(max_length + 1);
-        negative_part.resize(max_length + 1);
-    } else {
-        positive_part.clear();
-        negative_part.clear();
-    }
-
-    return std::make_pair(positive_part, negative_part);
-}
-
 int main() {
 
 
-    int d = 8;
-    cout << "CIAO \n";
-    for (int n=2; n<3; ++n){
-        cout << unnormalized_moment(n,d) << ", ";
-    }
+    int d = 4;
+    int n = 6;
 
-    cout << endl;
+    unnormalized_chromatic_moment(n,d, 0);
+
     return 0;
-} 
+}
+
+ 
