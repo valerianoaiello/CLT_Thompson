@@ -17,7 +17,7 @@ After that, in [A1] (see also [A2]) it was proved an Alexander type theorem for 
 ## A 'chromatic' state and its moments
 Consider the linear functional $\varphi: \mathbb{C}[F] \to \mathbb{C}$ defined as
 <p align="center">
- $\varphi(g):=\frac{{\rm Chr}_{\Gamma(g)}(2)}{2}$ for any $g\in F$.
+ $\theta(g):=\frac{{\rm Chr}_{\Gamma(g)}(2)}{2}$ for any $g\in F$.
 </p>
  
  When evaluated at an element of $F$, this functional returns $1$ if the element belongs to $\vec{F}$, and $0$ otherwise.
@@ -28,7 +28,7 @@ In this project, we examine the elements
 </p>
 
 
-We wrote some code to compute $(\sqrt{2 n})^k \varphi(s_n^k)\in \mathbb{N}$ for all $n$, $k$ in $\mathbb{N}_0$.
+We wrote some code to compute $(\sqrt{2 n})^k \theta(s_n^k)\in \mathbb{N}$ for all $n$, $k$ in $\mathbb{N}_0$.
 We call this quantity 'unnormalized moment'. The code comes in two versions: in Python and C++.
 These are contained in group_operations.py and c_group_operations.cpp
 
